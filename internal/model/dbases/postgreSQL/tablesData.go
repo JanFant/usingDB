@@ -29,3 +29,18 @@ type venues struct {
 	postalCode    string
 	countryCode   string
 }
+
+type month struct {
+	jan int
+	feb int
+	mar int
+	apr int
+	may int
+	jun int
+	jul int
+	aug int
+	sep int
+	oct int
+	nov int
+	dec int
+}

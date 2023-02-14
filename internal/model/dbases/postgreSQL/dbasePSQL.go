@@ -41,8 +41,18 @@ var (
 	    starts timestamp,
 	    ends timestamp,
 	    venue_id int,
-	    FOREIGN KEY (venue_id) REFERENCES venues (venue_id)
+	    FOREIGN KEY (venue_id) REFERENCES venues (venue_id),
+	    colors text array
 	    );`
+
+	tableLog = `
+	CREATE TABLE logs (
+		event_id integer,
+		old_title varchar(255),
+		old_starts timestamp,
+		old_ends timestamp,
+		logged_at timestamp DEFAULT current_timestamp
+	);`
 )
 
 func ConnectPSQLD() (*sqlx.DB, error) {
@@ -84,7 +94,30 @@ func ConnectPSQLD() (*sqlx.DB, error) {
 		fmt.Println("Create Events table!")
 		db.MustExec(tableEvents)
 		insertEvents(db)
+
+		//add_event
+		path := `internal/model/dbases/postgreSQL/add_event.sql`
+		str, err := readAddEventFile(path)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		db.MustExec(str)
+
+		//log_event
+		path = `internal/model/dbases/postgreSQL/log_event.sql`
+		str, err = readAddEventFile(path)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		db.MustExec(str)
 	}
+
+	//Logs
+	//_, err = db.Exec(`SELECT * FROM public.log limit(1);`)
+	//if err != nil {
+	//	fmt.Println("Create Logs table!")
+	//	db.MustExec(tableLog)
+	//}
 
 	return db, nil
 }

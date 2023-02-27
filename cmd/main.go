@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/jmoiron/sqlx"
 	"os"
+	"time"
 	"usingDB/internal/model/config"
-	"usingDB/internal/model/dbases/postgreSQL"
+	"usingDB/internal/model/dbases/mongodb"
 )
 
 var err error
@@ -27,18 +28,38 @@ func init() {
 
 func main() {
 
-	connPSQL, err := postgreSQL.ConnectPSQLD()
+	/*
+		//PSQL
+			fmt.Println("PSQL")
+			connPSQL, err := postgreSQL.ConnectPSQLD()
+			if err != nil {
+				fmt.Println("PSQL db - err: ", err.Error())
+				os.Exit(1)
+			}
+			defer func() {
+				if err := connPSQL.Close(); err != nil {
+					fmt.Println("close db err", err.Error())
+					panic(err)
+				}
+			}()
+			postgreSQL.PSQLExamples(connPSQL)
+	*/
+
+	fmt.Println("mongo")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongodb.ConnectMongo(ctx)
 	if err != nil {
-		fmt.Println("PSQL sb - err: ", err.Error())
+		fmt.Println("Mongo db -err", err.Error())
 		os.Exit(1)
 	}
-	defer func(connPSQL *sqlx.DB) {
-		if err := connPSQL.Close(); err != nil {
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
 			fmt.Println("close db err", err.Error())
+			panic(err)
 		}
-	}(connPSQL)
-
-	postgreSQL.PSQLExamples(connPSQL)
+	}()
+	mongodb.MongoExamples(client)
 
 	fmt.Println("done")
 }

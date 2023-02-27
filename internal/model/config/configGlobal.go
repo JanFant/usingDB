@@ -5,7 +5,8 @@ var GlobalConfig *Config
 
 // Config struct all config toml element
 type Config struct {
-	PSQLConfig ConfigPSQL `toml:"PSQL"`
+	PSQLConfig  ConfigPSQL  `toml:"PSQL"`
+	MongoConfig ConfigMongo `toml:"Mongo"`
 }
 
 // NewConfig create GlobalConfig

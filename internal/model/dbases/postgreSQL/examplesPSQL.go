@@ -3,13 +3,12 @@ package postgreSQL
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"io"
 	"os"
 )
 
 func PSQLExamples(db *sqlx.DB) {
 	//selectFromCountries1(db, "LARP Club")
-	selectYearAndMonth(db)
+	//selectYearAndMonth(db)
 }
 
 func selectYearAndMonth(db *sqlx.DB) {
@@ -98,24 +97,10 @@ func insertEvents(db *sqlx.DB) {
 }
 
 func readAddEventFile(path string) (str string, err error) {
-	file, err := os.Open(path)
+	row, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Println(`Can't open file add_event.sql -err:"'`, err.Error())
 		return "", err
 	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			fmt.Println("close file err", err.Error())
-		}
-	}(file)
-	data := make([]byte, 64)
-	for {
-		n, err := file.Read(data)
-		if err == io.EOF {
-			break
-		}
-		str = str + string(data[:n])
-	}
-	return str, nil
+	return string(row), nil
 }
